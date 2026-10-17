@@ -111,10 +111,23 @@
   var panels = $$('.panel');
   var panelTops = [];
 
+  // Curtina con suavizado temporal: la sección saliente "persigue" su
+  // posición objetivo con una relajación exponencial (~1.2s en asentarse),
+  // así el bloque de arriba tarda visiblemente más en subir aunque el
+  // scroll sea rápido.
+  var CURTAIN_TAU = 300; // constante de tiempo en ms (~4·τ ≈ 1.2s de asentado)
+  var panelTargets = [];
+  var panelCur = [];
+  var curtainRunning = false;
+  var curtainLast = 0;
+
   function measurePanels() {
     if (!panels.length) return;
     // Medimos sin transforms para obtener la posición natural de cada panel
-    panels.forEach(function (p) { p.style.transform = ''; });
+    panels.forEach(function (p, i) {
+      p.style.transform = '';
+      panelCur[i] = 0;
+    });
     var y = window.scrollY || 0;
     panelTops = panels.map(function (p) {
       return p.getBoundingClientRect().top + y;
@@ -122,10 +135,43 @@
     updatePanels();
   }
 
+  function curtainFrame(now) {
+    var dt = curtainLast ? Math.min(100, now - curtainLast) : 16.7;
+    curtainLast = now;
+
+    // Factor de relajación normalizado por fps (frame-rate independiente)
+    var f = 1 - Math.exp(-dt / CURTAIN_TAU);
+
+    var active = false;
+    for (var i = 0; i < panels.length - 1; i++) {
+      var target = panelTargets[i] || 0;
+      var cur = panelCur[i] || 0;
+
+      if (Math.abs(target - cur) < 0.3) {
+        cur = target; // asentado; el transform queda fijo hasta que cambie
+      } else {
+        cur += (target - cur) * f;
+        active = true;
+      }
+      panelCur[i] = cur;
+      panels[i].style.transform = cur > 0.4 ? 'translate3d(0,' + cur.toFixed(1) + 'px,0)' : '';
+    }
+
+    if (active) {
+      requestAnimationFrame(curtainFrame);
+    } else {
+      // Todo asentado: cortamos el loop; updatePanels() lo reencoleta al próximo scroll
+      curtainRunning = false;
+      curtainLast = 0;
+    }
+  }
+
   function updatePanels() {
     if (!panels.length) return;
     if (reduceMotion.matches) {
       panels.forEach(function (p) { p.style.transform = ''; });
+      panelTargets = [];
+      panelCur = [];
       return;
     }
     var vh = window.innerHeight;
@@ -135,8 +181,13 @@
     for (var i = 0; i < panels.length - 1; i++) {
       var nextTop = panelTops[i + 1] - y;
       // Ventana: mientras la siguiente entra por abajo y aún no llegó a la nav
-      var t = (nextTop > nav && nextTop < vh) ? vh - nextTop : 0;
-      panels[i].style.transform = t > 0.5 ? 'translate3d(0,' + t.toFixed(1) + 'px,0)' : '';
+      panelTargets[i] = (nextTop > nav && nextTop < vh) ? vh - nextTop : 0;
+    }
+
+    if (!curtainRunning) {
+      curtainRunning = true;
+      curtainLast = 0;
+      requestAnimationFrame(curtainFrame);
     }
   }
 
