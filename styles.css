@@ -739,7 +739,12 @@ body.nav-hidden .nav-fab{
   border:2.5px solid var(--ink);
   border-radius:26px;
   padding:clamp(30px,4vw,44px) clamp(24px,3.4vw,40px);
+  transition:transform .3s var(--ease), box-shadow .3s var(--ease);
 }
+/* los tres puntos como en los demás planes;
+   el primero va en crema porque es el que "iguala" el fondo oscuro */
+.pack-conecta .dots{ margin-bottom:22px; }
+.pack-conecta .dots span:nth-child(1){ background:var(--cream); }
 .pack-conecta .eyebrow{ background:var(--lime); }
 .pack-conecta h3{
   font-size:clamp(1.9rem,5vw,2.6rem);
@@ -767,6 +772,7 @@ body.nav-hidden .nav-fab{
   font-size:2.2rem;
   font-weight:700;
   line-height:1;
+  transition:transform .3s var(--ease);
 }
 .pack-conecta .price .cadence{
   display:block;
@@ -864,6 +870,8 @@ body.nav-hidden .nav-fab{
 .service-row:nth-child(5) .dot{ background:var(--lime); }
 .service-row:nth-child(6) .dot{ background:var(--pink); }
 .service-row:nth-child(7) .dot{ background:var(--blue); }
+.service-row:nth-child(8) .dot{ background:var(--lime); }
+.service-row:nth-child(9) .dot{ background:var(--pink); }
 .service-name h3{ font-size:1.3rem; font-weight:600; }
 .service-row p{
   grid-column:1/-1; grid-row:2;
@@ -1035,12 +1043,14 @@ footer p{ opacity:.6; }
 
 /* Hover solo en resoluciones mayores con puntero real */
 @media (hover:hover) and (min-width:901px){
-  .plans .plan:hover{
+  .plans .plan:hover,
+  .pack-conecta:hover{
     transform:translateY(-12px);
     box-shadow:10px 12px 0 var(--ink);
   }
   .plans .plan:hover .badge{ transform:rotate(-5deg) scale(1.08); }
-  .plans .plan:hover .price .now{ transform:scale(1.05); transform-origin:left; }
+  .plans .plan:hover .price .now,
+  .pack-conecta:hover .price .now{ transform:scale(1.05); transform-origin:left; }
 
   .process .step:hover{
     transform:translateY(-6px);
