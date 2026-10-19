@@ -590,6 +590,13 @@ body.nav-hidden .nav-fab{
 .instagram-link:hover{ background:var(--lime); transform:translateY(-2px); }
 .instagram-link:active{ transform:translateY(1px); }
 
+/* Strip full-bleed dentro de Quiénes somos (reemplaza las fotos):
+   sale de la columna .about hasta los bordes de la pantalla */
+#nosotros .strip{
+  position:static;
+  margin:34px calc(50% - 50vw) 2px;
+}
+
 /* --------------------------------------------------------------------------
    11. Proceso
    -------------------------------------------------------------------------- */
